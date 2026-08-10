@@ -1,0 +1,697 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -340,
+        60
+      ],
+      "id": "00b6a7dd-26fe-4be3-b414-c85ffecfc51f",
+      "name": "Telegram Trigger",
+      "webhookId": "647d8f0d-77df-41c7-9dae-de0eee645a95",
+      "credentials": {
+        "telegramApi": {
+          "id": "vwUECW8l67DSDmnw",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.photo }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "array",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "id": "13ba7ffa-ac2c-49e2-8405-caae8c1dda37"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "pic"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "4893a570-7c8b-43eb-b178-fdbe93650787",
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "=text "
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "aa9b2a6e-3476-43a5-9d38-688e5cf6d3eb",
+                    "leftValue": "={{ $json.message.voice }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "object",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "voice"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -120,
+        60
+      ],
+      "id": "34fa525e-6844-4df5-9379-238b9d85c07d",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.photo.last().file_id }}"
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        178,
+        -240
+      ],
+      "id": "dcec22e4-e5ed-4c8b-bc47-4774bbce234d",
+      "name": "Telegram1",
+      "webhookId": "3e60bc10-5b56-4ec1-aeb8-3557455fa1fa",
+      "credentials": {
+        "telegramApi": {
+          "id": "vwUECW8l67DSDmnw",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        476,
+        -240
+      ],
+      "id": "374b295f-33ab-423f-99a7-1452d805c7f5",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        774,
+        -240
+      ],
+      "id": "5e2d1c90-8372-4635-8fac-e669edf14cc2",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "text": "=What's in this image? explain it and explain the datas in this immage{{ $('Telegram Trigger').item.json.message.caption }} explain in the same language as i ask ",
+        "inputType": "base64",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1080,
+        -240
+      ],
+      "id": "6a144c91-db5d-4f9b-8574-640cb45f4c63",
+      "name": "OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "WAgtB0M0lEYL8244",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.content }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1668,
+        -240
+      ],
+      "id": "c7c808e4-4895-4a8b-95cd-d6a21ee5a94a",
+      "name": "Telegram2",
+      "webhookId": "5bd6dce3-2740-42e0-aa0b-bd020da126bd",
+      "credentials": {
+        "telegramApi": {
+          "id": "vwUECW8l67DSDmnw",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $('Telegram Trigger').item.json.message.voice.file_id }}"
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        178,
+        360
+      ],
+      "id": "220c863b-4c8f-4c49-a262-b82518dc1b53",
+      "name": "Telegram3",
+      "webhookId": "3281e0b2-8d1d-4ebe-a219-9db14f07d5bc",
+      "credentials": {
+        "telegramApi": {
+          "id": "vwUECW8l67DSDmnw",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        476,
+        360
+      ],
+      "id": "05118573-4e01-40f6-bcdd-ec177036b48d",
+      "name": "OpenAI1",
+      "credentials": {
+        "openAiApi": {
+          "id": "WAgtB0M0lEYL8244",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "=#ROLE \nyou are a helpful assistant called titty , designed for helping people studying . you are going to help people undrestand things by summerizing things they send to you . you should answer their questions and teach them what they want . you must be a great , kwoledgable and kind academic toutor . \n\n#ADDITIONAL INFORMATION\nyou are currently talking to {{ $('Telegram Trigger').item.json.message.chat.first_name }} and you should answer people in the same language as they talk to you . "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        100,
+        -40
+      ],
+      "id": "b1dfdeb8-7d9c-4933-95fe-a69f5134b80e",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        128,
+        180
+      ],
+      "id": "9f889aec-2db3-4a78-8a6e-e1979ecc3a40",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "5MkB9beyBs40odeg",
+          "name": "OpenAi account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "contextWindowLength": 150
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        248,
+        180
+      ],
+      "id": "1a4f2908-f477-4b27-a474-90c210abc7df",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Switch').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        476,
+        60
+      ],
+      "id": "cf86c216-72ac-4ebd-bda4-0049b46737a2",
+      "name": "Telegram",
+      "webhookId": "4f34baf6-813e-4e86-b55e-70e23cd3046d",
+      "credentials": {
+        "telegramApi": {
+          "id": "vwUECW8l67DSDmnw",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}",
+        "options": {
+          "systemMessage": "=#ROLE \nyou are a helpful assistant called titty , designed for helping people studying . you are going to help people undrestand things by summerizing things they send to you . you should answer their questions and teach them what they want . you must be a great , kwoledgable and kind academic toutor . \n\n#ADDITIONAL INFORMATION\nyou are currently talking to {{ $('Telegram Trigger').item.json.message.chat.first_name }} and you should answer people in the same language as they talk to you . "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        696,
+        360
+      ],
+      "id": "ac345463-0e33-4209-bf11-a7c45d557a1b",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        724,
+        580
+      ],
+      "id": "ecc0cd7a-c6b0-4095-9f8e-440bd4bcd5c5",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "5MkB9beyBs40odeg",
+          "name": "OpenAi account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.from.id }}",
+        "contextWindowLength": 150
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        844,
+        580
+      ],
+      "id": "af7eea7b-0dc6-473a-8ce9-394a98c9f12f",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.from.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1072,
+        360
+      ],
+      "id": "ab15feec-c9ca-4a95-ba08-18f037eb2a3f",
+      "name": "Telegram4",
+      "webhookId": "fad5186c-43c4-4aa7-8359-a1481e019408",
+      "credentials": {
+        "telegramApi": {
+          "id": "vwUECW8l67DSDmnw",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.content }}",
+        "options": {
+          "systemMessage": "=#ROLE \nyou are a helpful assistant called titty , designed for helping people studying . you are going to teach this text to user . you should explain this as easy as you can .\n\n#ADDITIONAL INFORMATION\nyou are currently talking to {{ $('Telegram Trigger').item.json.message.chat.first_name }} and you should answer people in both farsi and english . the operarions and formulas should always be englisgh but explanations should be in both farsi and english. "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        1300,
+        -240
+      ],
+      "id": "b93e8d56-6982-4cf8-ac60-cd99992ae4bb",
+      "name": "AI Agent2"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1240,
+        -40
+      ],
+      "id": "61a1ea68-c7e9-4c18-826a-53c2861a22a6",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "5MkB9beyBs40odeg",
+          "name": "OpenAi account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "contextWindowLength": 150
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1440,
+        -20
+      ],
+      "id": "5955eaff-a780-4eb7-924e-60dee5ce4f60",
+      "name": "Simple Memory2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Telegram1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram1": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram3": {
+      "main": [
+        [
+          {
+            "node": "OpenAI1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Telegram4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "Telegram2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory2": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1cbcc0a6-73de-4bce-8901-dfd3772b8ccf",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f706c1092c830a467df6bd479ad9f99df5ce6605e760ae0c4684c19f705443d3"
+  },
+  "id": "NCxJtMVto3ycOdaI",
+  "tags": []
+}
